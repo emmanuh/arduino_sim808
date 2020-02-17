@@ -1,9 +1,9 @@
 #include <SoftwareSerial.h>
-SoftwareSerial sim808(10,11);
 
+#define DEBUG true
+SoftwareSerial sim808(10,11);
 char phone_no[] = "+254712738104"; // replace with your phone no.
 String data[5];
-#define DEBUG true
 String state,timegps,latitude,longitude;
 
 void setup() {
@@ -30,27 +30,31 @@ void loop() {
         Serial.println("Time  :"+timegps);
         Serial.println("Latitude  :"+latitude);
         Serial.println("Longitude  :"+longitude);
-        
-        sim808.print("AT+CMGS=\"");
-        sim808.print(phone_no);
-        sim808.println("\"");
-        
-        delay(300);
-        
-        sim808.print("http://maps.google.com/maps?q=loc:");
-        sim808.print(latitude);
-        sim808.print(",");
-        sim808.print (longitude);
-        delay(200);
-        sim808.println((char)26); // End AT command with a ^Z, ASCII code 26
-        delay(200);
-        sim808.println();
-        delay(20000);
-        sim808.flush();
+         
+        sendSMS();
     
     } else {
         Serial.println("GPS Initializing…");
     }
+}
+
+void sendSMS(){
+    sim808.print("AT+CMGS=\"");
+    sim808.print(phone_no);
+    sim808.println("\"");
+    
+    delay(300);
+    sim808.print("http://maps.google.com/maps?q=loc:");
+    sim808.print(latitude);
+    sim808.print(",");
+    sim808.print (longitude);
+    delay(200);
+    sim808.println((char)26); // End AT command with a ^Z, ASCII code 26
+    delay(200);
+    sim808.println();
+    delay(20000);  // DELAY FOR 1/3 A MUNUTE(60000)
+    sim808.flush();
+
 }
 
 void sendTabData(String command , const int timeout , boolean debug){
